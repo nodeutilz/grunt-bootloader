@@ -1,0 +1,44 @@
+{
+	"name": "grunt-bootloader",
+	"description": "Setup your webproject in an instant",
+	"version": "0.1.0",
+	"homepage": "",
+	"author": {
+		"name": "Lalit Tanwar",
+		"email": "lalit.tanwar07@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nodeutilz/grunt-bootloader.git"
+	},
+	"bugs": {
+		"url": "???"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "/blob/master/LICENSE-MIT"
+		}
+	],
+	"engines": {
+		"node": ">= 0.8.0"
+	},
+	"scripts": {
+		"test": "grunt test"
+	},
+	"devDependencies": {
+		"grunt-contrib-jshint": "^0.9.2",
+		"grunt-contrib-clean": "^0.5.0",
+		"grunt-contrib-nodeunit": "^0.3.3",
+		"grunt": "~0.4.5",
+		"dummy-json": "0.0.2",
+		"grunt-contrib-uglify": "~0.5.0",
+		"grunt-contrib-connect": "0.3.0",
+		"grunt-contrib-watch": "^0.6.1",
+		"grunt-webfont": "^0.5.4"
+	},
+	"peerDependencies": {
+		"grunt": "~0.4.5"
+	},
+	"keywords": ["gruntplugin"]
+}
