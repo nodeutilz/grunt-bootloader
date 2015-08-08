@@ -25,12 +25,12 @@ In your project's Gruntfile, add a section named `bootloader` to the data object
 ```js
 grunt.initConfig({
   bootloader: {
-    options: {
-      // Task-specific options go here.
-    },
-    your_target: {
-      // Target-specific file lists and/or options go here.
-    },
+      options : {
+        indexBundles : ["webmodules/bootloader","myproject/app"],
+        src : "./",
+        dest : "dest",
+        resourcesJson : "resource.json"
+      }
   },
 });
 ```
