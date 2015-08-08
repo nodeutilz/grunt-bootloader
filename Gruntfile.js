@@ -8,7 +8,7 @@
 
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
   // Project configuration.
   grunt.initConfig({
@@ -23,6 +23,18 @@ module.exports = function(grunt) {
       }
     },
 
+    uglify: {
+      options: {
+        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+      },
+      my_target: {
+        options: {
+          footer: ""
+        },
+        files: {
+        }
+      }
+    },
     // Before generating any new files, remove any previously-created files.
     clean: {
       tests: ['tmp']
@@ -30,21 +42,11 @@ module.exports = function(grunt) {
 
     // Configuration to be run (and then tested).
     bootloader: {
-      default_options: {
-        options: {
-        },
-        files: {
-          'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123']
-        }
-      },
-      custom_options: {
-        options: {
-          separator: ': ',
-          punctuation: ' !!!'
-        },
-        files: {
-          'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123']
-        }
+      options : {
+        indexBundles : ["unidesk/init"],// ["webmodules/bootloader","unicom/external","unicom/abstracts"],
+        src : "./",
+        dest : "dest",
+        resourcesJson : "resource.json"
       }
     },
 
