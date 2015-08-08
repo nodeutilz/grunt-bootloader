@@ -32,6 +32,9 @@ module.exports = function (grunt) {
     );
   }
 
+  // Load the plugin that provides the "uglify" task.
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
 
@@ -48,7 +51,7 @@ module.exports = function (grunt) {
     var bundles = {};
     var dir = options.src;
     var dest = options.dest;
-    var resourcesFile = options.resourcesFile;
+    var resourcesFile = options.resourcesJson;
     var indexBundles = options.indexBundles;
     var traversed_bundles = {}, traversed_files = {};
     var resourcesJs = { bundles: bundles };
@@ -58,9 +61,11 @@ module.exports = function (grunt) {
         traversed_bundles[packageName] = true;
         var bundle = resourcesJs.bundles[packageName];
         if (bundle) {
-          bundle.bundled = bundledFile;
+          bundle.bundled = bundle.bundled || [];
+          bundle.bundled.push(bundledFile);
+
           for (var i in bundle.on) {
-            files = getFiles(bundle.on[i], files);
+            files = getFiles(bundle.on[i], files,bundledFile);
           }
           for (var i in bundle.js) {
             var file = dir + "/" + bundle.js[i];
@@ -99,7 +104,9 @@ module.exports = function (grunt) {
         }
       });
 
-      indexBundles.forEach(function (bundleName) {
+      var myIndexBnudles = uniqueArray(indexBundles.concat(Object.keys(bundles)));
+
+      myIndexBnudles.forEach(function (bundleName) {
         var _bundleMap = {};
         var bundledFile = dest + "/" + bundleName.split("/").join(".") + ".js";
         var files = uniqueArray(getFiles(bundleName, [], bundledFile));
