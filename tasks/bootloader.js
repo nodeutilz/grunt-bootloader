@@ -22,6 +22,10 @@ module.exports = function (grunt) {
     return a;
   }
 
+  function endsWith(str,suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+  };
+
   function setBundleConfig(bundleName, _bundleMap) {
     var targetName = bundleName.split("/").join("_");
     grunt.config("uglify." + targetName + ".files", _bundleMap);
@@ -40,6 +44,9 @@ module.exports = function (grunt) {
 
   grunt.registerTask('bootloader', 'Setup your webproject in an instant', function (arg1) {
     // Merge task-specific and/or target-specific options with these defaults.
+
+    var TASK_BUNDLIFY = arg1==="bundlify";
+    var TASK_SCAN = arg1==="scan";
 
     var options = this.options({
       indexBundles: ["webmodules/bootloader", "project/app"],
@@ -79,7 +86,7 @@ module.exports = function (grunt) {
       return files;
     }
 
-    if (arg1 === "bundlify") {
+    if (TASK_BUNDLIFY || TASK_SCAN) {
       grunt.file.recurse(dir, function (abspath, rootdir, subdir, filename) {
         if (filename === "module.json" && abspath.indexOf(dest) !== 0) {
           //console.log(abspath, rootdir, subdir, filename);
@@ -104,11 +111,16 @@ module.exports = function (grunt) {
         }
       });
 
-      var myIndexBnudles = uniqueArray(indexBundles.concat(Object.keys(bundles)));
+      var myIndexBnudles = indexBundles;
+      if(TASK_BUNDLIFY){
+        myIndexBnudles = uniqueArray(indexBundles.concat(Object.keys(bundles).filter(function(bundleName){
+          return !endsWith(bundleName,"/min");
+        })));
+      }
 
       myIndexBnudles.forEach(function (bundleName) {
         var _bundleMap = {};
-        var bundledFile = dest + "/" + bundleName.split("/").join(".") + ".js";
+        var bundledFile = dest + "/bootloader_bundled/" + bundleName.split("/").join(".") + ".js";
         var files = uniqueArray(getFiles(bundleName, [], bundledFile));
         _bundleMap[bundledFile] = files;
         setBundleConfig(bundleName, _bundleMap);
