@@ -49,6 +49,7 @@ module.exports = function (grunt) {
     var TASK_SCAN = arg1==="scan";
 
     var options = this.options({
+      version: new Date().getTime(0),
       indexBundles: ["webmodules/bootloader", "project/app"],
       src: "./",
       dest: "dest",
@@ -61,7 +62,8 @@ module.exports = function (grunt) {
     var resourcesFile = options.resourcesJson;
     var indexBundles = options.indexBundles;
     var traversed_bundles = {}, traversed_files = {};
-    var resourcesJs = { bundles: bundles };
+    var version = new Date().getTime();
+    var resourcesJs = {version: options.version, bundles: bundles };
 
     function getFiles(packageName, files, bundledFile) {
       if (!traversed_bundles[packageName]) {
