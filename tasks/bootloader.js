@@ -71,8 +71,6 @@ module.exports = function (grunt) {
         var bundle = resourcesJs.bundles[packageName];
         if (bundle) {
           bundle.bundled = bundle.bundled || [];
-          bundle.bundled.push(bundledFile);
-
           for (var i in bundle.on) {
             files = getFiles(bundle.on[i], files,bundledFile);
           }
@@ -82,6 +80,9 @@ module.exports = function (grunt) {
               files.push(file);
               traversed_files[file] = true;
             }
+          }
+          if(files.length>0){
+            bundle.bundled.push(bundledFile);
           }
         }
       }
@@ -123,9 +124,11 @@ module.exports = function (grunt) {
       myIndexBnudles.forEach(function (bundleName) {
         var _bundleMap = {};
         var bundledFile = dest + "/bootloader_bundled/" + bundleName.split("/").join(".") + ".js";
-        var files = uniqueArray(getFiles(bundleName, [], bundledFile));
-        _bundleMap[bundledFile] = files;
-        setBundleConfig(bundleName, _bundleMap);
+        var files = uniqueArray(getFiles(bundleName, [], bundledFile).reverse()).reverse();
+        if(files.length>0){
+          _bundleMap[bundledFile] = files;
+          setBundleConfig(bundleName, _bundleMap);
+        } else console.log("No File in bundle to bundlify so skipping");
       });
 
       grunt.task.run("uglify");
