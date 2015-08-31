@@ -26,13 +26,14 @@ module.exports = function (grunt) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
   };
 
-  function setBundleConfig(bundleName, _bundleMap) {
+  function setBundleConfig(bundleName, _bundleMap,includedBundles) {
     var targetName = bundleName.split("/").join("_");
     grunt.config("uglify." + targetName + ".files", _bundleMap);
     grunt.config("uglify." + targetName + ".options.footer",
-        ';\n(function(foo,bundles){foo.__bundled__ = foo.__bundled__ ? foo.__bundled__.concat(bundles) : bundles;})(this,["' +
-        bundleName
-        + '"]);'
+        ';\n(function(foo,bundles){foo.__bundled__ = foo.__bundled__ ? foo.__bundled__.concat(bundles) : bundles;})(this,' +
+       // JSON.stringify(includedBundles)
+        JSON.stringify([bundleName])
+        + ');'
     );
   }
 
@@ -56,6 +57,7 @@ module.exports = function (grunt) {
       resourcesJson: "resource.json"
     });
 
+    var allFiles = {};
     var bundles = {};
     var dir = options.src;
     var dest = options.dest;
@@ -65,14 +67,15 @@ module.exports = function (grunt) {
     var version = new Date().getTime();
     var resourcesJs = {version: options.version, bundles: bundles };
 
-    function getFiles(packageName, files, bundledFile) {
+    function getFiles(packageName, files, bundledFile,includedBundles) {
       if (!traversed_bundles[packageName]) {
         traversed_bundles[packageName] = true;
         var bundle = resourcesJs.bundles[packageName];
         if (bundle) {
           bundle.bundled = bundle.bundled || [];
+          bundle.in = bundle.in || [];
           for (var i in bundle.on) {
-            files = getFiles(bundle.on[i], files,bundledFile);
+            files = getFiles(bundle.on[i], files, bundledFile,includedBundles);
           }
           for (var i in bundle.js) {
             var file = dir + "/" + bundle.js[i];
@@ -84,6 +87,7 @@ module.exports = function (grunt) {
           if(files.length>0){
             bundle.bundled.push(bundledFile);
           }
+          includedBundles.push(packageName);
         }
       }
       return files;
@@ -98,16 +102,31 @@ module.exports = function (grunt) {
           if (packageName !== undefined) {
             for (var bundleName in _bundles) {
               if (bundleName === packageName || bundleName.indexOf(packageName + "/") === 0) {
+                if(bundles[bundleName]){
+                  console.log("====Duplicate Package",bundleName);
+                }
                 bundles[bundleName] = { js: [], on: [], css: [] };
                 for (var file_i in _bundles[bundleName].js) {
-                  bundles[bundleName].js.push(subdir + "/" + _bundles[bundleName].js[file_i]);
+                  var js_file = subdir + "/" + _bundles[bundleName].js[file_i];
+                  bundles[bundleName].js.push(js_file);
+                  if(!allFiles[js_file]){
+                    allFiles[js_file] = js_file;
+                  } else {
+                    console.log("====Duplicate File"+js_file);
+                  }
                 }
                 for (var file_i in _bundles[bundleName].css) {
-                  bundles[bundleName].css.push(subdir + "/" + _bundles[bundleName].css[file_i]);
+                  var css_file = subdir + "/" + _bundles[bundleName].css[file_i];
+                  bundles[bundleName].css.push(css_file);
+                  if(!allFiles[css_file]){
+                    allFiles[css_file] = css_file;
+                  } else {
+                    console.log("====Duplicate File"+css_file);
+                  }
                 }
                 bundles[bundleName].on = _bundles[bundleName].on || [];
-                console.log("file", abspath);
-                console.log(bundleName, _bundles[bundleName].on);
+                console.log("==Module.json", abspath);
+                //console.log(bundleName, _bundles[bundleName].on);
               }
             }
           }
@@ -117,18 +136,29 @@ module.exports = function (grunt) {
       var myIndexBnudles = indexBundles;
       if(TASK_BUNDLIFY){
         myIndexBnudles = uniqueArray(indexBundles.concat(Object.keys(bundles).filter(function(bundleName){
-          return !endsWith(bundleName,"/min");
+          return !endsWith(bundleName,"/min") && !endsWith(bundleName,"/test");
         })));
       }
 
+      var prevBundle = null;
       myIndexBnudles.forEach(function (bundleName) {
         var _bundleMap = {};
+        var includedBundles = [];
         var bundledFile = dest + "/bootloader_bundled/" + bundleName.split("/").join(".") + ".js";
-        var files = uniqueArray(getFiles(bundleName, [], bundledFile).reverse()).reverse();
+        var files = uniqueArray(getFiles(bundleName, [],bundledFile,includedBundles).reverse()).reverse();
         if(files.length>0){
           _bundleMap[bundledFile] = files;
-          setBundleConfig(bundleName, _bundleMap);
-        } else console.log("No File in bundle to bundlify so skipping");
+          setBundleConfig(bundleName, _bundleMap,includedBundles);
+
+          if(prevBundle){
+            var bundle = resourcesJs.bundles[bundleName];
+            if (bundle) {
+              bundle.on = [prevBundle].concat(bundle.on)
+            }
+          }
+          prevBundle = bundleName;
+
+        } else console.log("No File in bundle to bundlify so skipping ",bundleName);
       });
 
       grunt.task.run("uglify");
