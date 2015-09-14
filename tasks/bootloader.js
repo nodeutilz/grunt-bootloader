@@ -139,7 +139,7 @@ module.exports = function (grunt) {
       });
 
       if(!TASK_SKIP_INIT){
-        var myIndexBnudles = [indexBundles[0]];
+        var myIndexBnudles = indexBundles;
         if(TASK_BUNDLIFY){
           myIndexBnudles = uniqueArray(indexBundles.concat(Object.keys(bundles).filter(function(bundleName){
             return !endsWith(bundleName,"/min") && !endsWith(bundleName,"/test");
