@@ -43,11 +43,12 @@ module.exports = function (grunt) {
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
 
-  grunt.registerTask('bootloader', 'Setup your webproject in an instant', function (arg1) {
+  grunt.registerTask('bootloader', 'Setup your webproject in an instant', function (arg1,arg2) {
     // Merge task-specific and/or target-specific options with these defaults.
 
     var TASK_BUNDLIFY = arg1==="bundlify";
     var TASK_SCAN = arg1==="scan";
+    var TASK_SKIP_INIT = TASK_SCAN && arg2=="skip";
 
     var options = this.options({
       version: new Date().getTime(0),
@@ -65,7 +66,11 @@ module.exports = function (grunt) {
     var indexBundles = options.indexBundles;
     var traversed_bundles = {}, traversed_files = {};
     var version = new Date().getTime();
-    var resourcesJs = {version: options.version, bundles: bundles };
+    var resourcesJs = {};
+    for(var key in options){
+      resourcesJs[key] = options[key];
+    }
+    resourcesJs.bundles = bundles;
 
     function getFiles(packageName, files, bundledFile,includedBundles) {
       if (!traversed_bundles[packageName]) {
@@ -133,35 +138,37 @@ module.exports = function (grunt) {
         }
       });
 
-      var myIndexBnudles = indexBundles;
-      if(TASK_BUNDLIFY){
-        myIndexBnudles = uniqueArray(indexBundles.concat(Object.keys(bundles).filter(function(bundleName){
-          return !endsWith(bundleName,"/min") && !endsWith(bundleName,"/test");
-        })));
-      }
+      if(!TASK_SKIP_INIT){
+        var myIndexBnudles = [indexBundles[0]];
+        if(TASK_BUNDLIFY){
+          myIndexBnudles = uniqueArray(indexBundles.concat(Object.keys(bundles).filter(function(bundleName){
+            return !endsWith(bundleName,"/min") && !endsWith(bundleName,"/test");
+          })));
+        }
 
-      var prevBundle = null;
-      myIndexBnudles.forEach(function (bundleName) {
-        var _bundleMap = {};
-        var includedBundles = [];
-        var bundledFile = dest + "/bootloader_bundled/" + bundleName.split("/").join(".") + ".js";
-        var files = uniqueArray(getFiles(bundleName, [],bundledFile,includedBundles).reverse()).reverse();
-        if(files.length>0){
-          _bundleMap[bundledFile] = files;
-          setBundleConfig(bundleName, _bundleMap,includedBundles);
+        var prevBundle = null;
+        myIndexBnudles.forEach(function (bundleName) {
+          var _bundleMap = {};
+          var includedBundles = [];
+          var bundledFile = dest + "/bootloader_bundled/" + bundleName.split("/").join(".") + ".js";
+          var files = uniqueArray(getFiles(bundleName, [],bundledFile,includedBundles).reverse()).reverse();
+          if(files.length>0){
+            _bundleMap[bundledFile] = files;
+            setBundleConfig(bundleName, _bundleMap,includedBundles);
 
-          if(prevBundle){
-            var bundle = resourcesJs.bundles[bundleName];
-            if (bundle) {
-              bundle.on = [prevBundle].concat(bundle.on)
+            if(prevBundle){
+              var bundle = resourcesJs.bundles[bundleName];
+              if (bundle) {
+                bundle.on = [prevBundle].concat(bundle.on)
+              }
             }
-          }
-          prevBundle = bundleName;
+            prevBundle = bundleName;
 
-        } else console.log("No File in bundle to bundlify so skipping ",bundleName);
-      });
+          } else console.log("No File in bundle to bundlify so skipping ",bundleName);
+        });
 
-      grunt.task.run("uglify");
+        grunt.task.run("uglify");
+      }
 
       grunt.file.write(dest + "/" + resourcesFile, JSON.stringify(resourcesJs));
     }
