@@ -248,10 +248,7 @@ module.exports = function (grunt) {
     if (TASK_BUNDLIFY || TASK_SCAN) {
       bundler(options)
     } else if (TASK_SERVER) {
-      var helperJSON = grunt.file.readJSON("app/helper.json");
-      console.log("helperJSON", helperJSON);
       datahandler = require(__dirname + "/../utils/stubshandler");
-
       var _bootServerOptions = Object.create(bootServerOptions);
       mixin(_bootServerOptions,options.bootServer);
       grunt.config("connect.bootServer.options", _bootServerOptions);
