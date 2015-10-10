@@ -36,7 +36,7 @@ module.exports = function (grunt) {
   }
 
   function setBundleConfig(bundleName, _bundleMap, includedBundles) {
-    var targetName = bundleName.split("/").join("_");
+    var targetName = bundleName.split(/[\/.]/).join("_");
     grunt.config("uglify." + targetName + ".files", _bundleMap);
     grunt.config("uglify." + targetName + ".options.footer",
         ';\n(function(foo,bundles){foo.__bundled__ = foo.__bundled__ ? foo.__bundled__.concat(bundles) : bundles;})(this,' +

@@ -44,7 +44,6 @@
     "grunt-webfont": "^0.5.4"
   },
   "peerDependencies": {
-    "grunt": "~0.4.5"
   },
   "keywords": ["gruntplugin"]
 }
