@@ -156,7 +156,17 @@ module.exports = function (grunt) {
     if (TASK_BUNDLIFY || TASK_SCAN) {
       grunt.file.recurse(dir, function (abspath, rootdir, subdir, filename) {
         if (filename === "module.json" && abspath.indexOf(dest) !== 0) {
-          //console.log(abspath, rootdir, subdir, filename);
+          var packageInfo = {};
+          if(grunt.file.exists(subdir+"/.bower.json")){
+            var bowerJson =grunt.file.readJSON(subdir+"/.bower.json");
+            packageInfo.bowerName = bowerJson.name;
+            packageInfo.bowerVersion = bowerJson.version;
+          }
+          if(grunt.file.exists(subdir+"/composer.json")){
+            var composerJson =grunt.file.readJSON(subdir+"/composer.json");
+            packageInfo.composerName = composerJson.name;
+            packageInfo.composerVersion = composerJson.version;
+          }
           var _bundles = grunt.file.readJSON(abspath);
           var packageName = _bundles.name;
           if (packageName !== undefined) {
@@ -165,7 +175,7 @@ module.exports = function (grunt) {
                 if (bundles[bundleName]) {
                   console.log("====Duplicate Package", bundleName);
                 }
-                bundles[bundleName] = { js: [], on: [], css: [] };
+                bundles[bundleName] = { js: [], on: [], css: [], packageInfo : packageInfo };
                 for (var file_i in _bundles[bundleName].js) {
                   var js_file = subdir + "/" + _bundles[bundleName].js[file_i];
                   bundles[bundleName].js.push(js_file);
