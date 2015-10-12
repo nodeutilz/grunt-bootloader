@@ -10,6 +10,31 @@
 
 module.exports = function (grunt) {
 
+  function cleanURL(url) {
+    var protocol = null;
+    url = url.replace(/[\/]+/g, '/');;
+    var ars = url.split('/');
+    var context = ars.shift();
+    var parents = [];
+    for ( var i in ars) {
+      switch (ars[i]) {
+        case '.':
+          // Don't need to do anything here
+          break;
+        case '..':
+          parents.pop();
+          break;
+        default:
+          parents.push(ars[i]);
+          break;
+      }
+    }
+    if(protocol){
+      return protocol +"://"+ ( context + '/' + parents.join('/')).replace(/(\/)+/g, '/');
+    }
+    return (context + '/' + parents.join('/')).replace(/(\/)+/g, '/');
+  }
+
   function uniqueArray(list) {
     var u = {}, a = [];
     for (var i = 0, l = list.length; i < l; ++i) {
@@ -138,7 +163,7 @@ module.exports = function (grunt) {
             files = getFiles(bundle.on[i], files, bundledFile, includedBundles);
           }
           for (var i in bundle.js) {
-            var file = dir + "/" + bundle.js[i];
+            var file = cleanURL(dir + "/" + bundle.js[i]);
             if (!traversed_files[file]) {
               files.push(file);
               traversed_files[file] = true;
@@ -219,6 +244,7 @@ module.exports = function (grunt) {
           var files = uniqueArray(getFiles(bundleName, [], bundledFile, includedBundles).reverse()).reverse();
           if (files.length > 0) {
             _bundleMap[bundledFile] = files;
+            //console.log("files",bundleName,files.length,files);
             setBundleConfig(bundleName, _bundleMap, includedBundles);
 
             if (prevBundle) {
