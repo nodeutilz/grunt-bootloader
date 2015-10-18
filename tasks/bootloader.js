@@ -231,9 +231,18 @@ module.exports = function (grunt) {
       if (!TASK_SKIP_INIT) {
         var myIndexBnudles = indexBundles;
         if (TASK_BUNDLIFY) {
-          myIndexBnudles = uniqueArray(indexBundles.concat(Object.keys(bundles).filter(function (bundleName) {
+          var moreBundles = Object.keys(bundles);
+
+          if(options.projectPrefix !== undefined){
+            myIndexBnudles = uniqueArray(myIndexBnudles.concat(moreBundles.filter(function(bundleName){
+              return bundleName.indexOf(options.projectPrefix) === 0;
+            })));
+          }
+
+          myIndexBnudles = uniqueArray(myIndexBnudles.concat(moreBundles.filter(function (bundleName) {
             return !endsWith(bundleName, "/min") && !endsWith(bundleName, "/test");
           })));
+
         }
 
         var prevBundle = null;
