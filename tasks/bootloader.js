@@ -60,14 +60,14 @@ module.exports = function (grunt) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
   }
 
-  function setBundleConfig(bundleName, _bundleMap, includedBundles) {
+  function setBundleConfig(bundleName, _bundleMap, includedBundles,bundledFile) {
     var targetName = bundleName.split(/[\/.]/).join("_");
     grunt.config("uglify." + targetName + ".files", _bundleMap);
     grunt.config("uglify." + targetName + ".options.footer",
         ';\n(function(foo,bundles){foo.__bundled__ = foo.__bundled__ ? foo.__bundled__.concat(bundles) : bundles;})(this,' +
         // JSON.stringify(includedBundles)
         JSON.stringify([bundleName])
-        + ');'
+        + ');/*'+_bundleMap[bundledFile].join(",")+'*/'
     );
   }
 
@@ -254,7 +254,7 @@ module.exports = function (grunt) {
           if (files.length > 0) {
             _bundleMap[bundledFile] = files;
             //console.log("files",bundleName,files.length,files);
-            setBundleConfig(bundleName, _bundleMap, includedBundles);
+            setBundleConfig(bundleName, _bundleMap, includedBundles,bundledFile);
 
             if (prevBundle) {
               var bundle = resourcesJs.bundles[bundleName];
