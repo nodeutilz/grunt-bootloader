@@ -158,6 +158,7 @@ module.exports = function (grunt) {
         var bundle = resourcesJs.bundles[packageName];
         if (bundle) {
           bundle.bundled = bundle.bundled || [];
+          bundle.bundled_html = bundle.bundled_html || [];
           bundle.in = bundle.in || [];
           for (var i in bundle.on) {
             files = getFiles(bundle.on[i], files, bundledFile, includedBundles);
@@ -165,13 +166,25 @@ module.exports = function (grunt) {
           for (var i in bundle.js) {
             var file = cleanURL(dir + "/" + bundle.js[i]);
             if (!traversed_files[file]) {
-              files.push(file);
+              files.js.push(file);
               traversed_files[file] = true;
             }
           }
-          if (files.length > 0) {
-            bundle.bundled.push(bundledFile);
+          if (files.js.length > 0) {
+            bundle.bundled.push(bundledFile+".js");
           }
+
+          for (var i in bundle.html) {
+            var file = cleanURL(dir + "/" + bundle.html[i]);
+            if (!traversed_files[file]) {
+              files.html.push(file);
+              traversed_files[file] = true;
+            }
+          }
+          if (files.html.length > 0) {
+            bundle.bundled_html.push(bundledFile+".html");
+          }
+
           includedBundles.push(packageName);
         }
       }
@@ -200,7 +213,7 @@ module.exports = function (grunt) {
                 if (bundles[bundleName]) {
                   console.log("====Duplicate Package", bundleName);
                 }
-                bundles[bundleName] = { js: [], on: [], css: [], packageInfo : packageInfo };
+                bundles[bundleName] = { js: [], on: [], css: [], html : [], packageInfo : packageInfo};
                 for (var file_i in _bundles[bundleName].js) {
                   var js_file = subdir + "/" + _bundles[bundleName].js[file_i];
                   bundles[bundleName].js.push(js_file);
@@ -217,6 +230,15 @@ module.exports = function (grunt) {
                     allFiles[css_file] = css_file;
                   } else {
                     console.log("====Duplicate File" + css_file);
+                  }
+                }
+                for (var file_i in _bundles[bundleName].html) {
+                  var html_file = subdir + "/" + _bundles[bundleName].html[file_i];
+                  bundles[bundleName].html.push(html_file);
+                  if (!allFiles[html_file]) {
+                    allFiles[html_file] = html_file;
+                  } else {
+                    console.log("====Duplicate File" + html_file);
                   }
                 }
                 bundles[bundleName].on = _bundles[bundleName].on || [];
@@ -249,12 +271,14 @@ module.exports = function (grunt) {
         myIndexBnudles.forEach(function (bundleName) {
           var _bundleMap = {};
           var includedBundles = [];
-          var bundledFile = dest + "/bootloader_bundled/" + bundleName.split("/").join(".") + ".js";
-          var files = uniqueArray(getFiles(bundleName, [], bundledFile, includedBundles).reverse()).reverse();
-          if (files.length > 0) {
-            _bundleMap[bundledFile] = files;
+          var bundledFile = dest + "/bootloader_bundled/" + bundleName.split("/").join(".");
+          var bundledFile_js = bundledFile+".js";
+          var files = getFiles(bundleName, {js : [], html : []}, bundledFile, includedBundles);
+          var js_files = uniqueArray(files.js.reverse()).reverse();
+          if (js_files.length > 0) {
+            _bundleMap[bundledFile_js] = js_files;
             //console.log("files",bundleName,files.length,files);
-            setBundleConfig(bundleName, _bundleMap, includedBundles,bundledFile);
+            setBundleConfig(bundleName, _bundleMap, includedBundles,bundledFile_js);
 
             if (prevBundle) {
               var bundle = resourcesJs.bundles[bundleName];
@@ -265,6 +289,20 @@ module.exports = function (grunt) {
             prevBundle = bundleName;
 
           } else console.log("No File in bundle to bundlify so skipping ", bundleName);
+
+          var html_files = uniqueArray(files.html.reverse()).reverse();
+          if(html_files.length){
+            var html_file_content = "";
+            for(var i in html_files){
+              html_file_content+='<script type="text/html" src="'+html_files[i]+'">'+grunt.file.read(html_files[i]).split("\t").join("")
+                .split("\n").join("")
+                .split(">").map(function(v) {
+                  return v.trim();
+                }).join(">")+'</script>';
+            }
+            grunt.file.write(bundledFile+".html",html_file_content);
+          }
+
         });
 
         grunt.task.run("uglify");
