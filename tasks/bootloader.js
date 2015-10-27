@@ -295,7 +295,7 @@ module.exports = function (grunt) {
             var html_file_content = "";
             for(var i in html_files){
               html_file_content+='<script type="text/html" src="'+html_files[i]+'">'+grunt.file.read(html_files[i]).split("\t").join("")
-                .split("\n").join("")
+                .split("\n").join(" ")
                 .split(">").map(function(v) {
                   return v.trim();
                 }).join(">")+'</script>';
