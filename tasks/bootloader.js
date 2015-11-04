@@ -144,7 +144,7 @@ module.exports = function (grunt) {
     var dest = options.dest;
     var resourcesFile = options.resourcesJson;
     var indexBundles = options.indexBundles;
-    var traversed_bundles = {}, traversed_files = {};
+    var traversed_bundles = {}, traversed_files = {},excluded_bundles = {};
     var version = new Date().getTime();
     var resourcesJs = {};
     for (var key in options) {
@@ -153,7 +153,7 @@ module.exports = function (grunt) {
     resourcesJs.bundles = bundles;
 
     function getFiles(packageName, files, bundledFile, includedBundles) {
-      if (!traversed_bundles[packageName]) {
+      if (!traversed_bundles[packageName] && !excluded_bundles[packageName]) {
         traversed_bundles[packageName] = true;
         var bundle = resourcesJs.bundles[packageName];
         if (bundle) {
@@ -207,9 +207,14 @@ module.exports = function (grunt) {
           }
           var _bundles = grunt.file.readJSON(abspath);
           var packageName = _bundles.name;
+          if(_bundles.exclude){
+            for(var i in _bundles.exclude){
+              excluded_bundles[_bundles.exclude[i]] = true;
+            }
+          }
           if (packageName !== undefined) {
             for (var bundleName in _bundles) {
-              if (bundleName === packageName || bundleName.indexOf(packageName + "/") === 0) {
+              if ((bundleName === packageName || bundleName.indexOf(packageName + "/") === 0) && !excluded_bundles[bundleName]) {
                 if (bundles[bundleName]) {
                   console.log("====Duplicate Package", bundleName);
                 }
@@ -249,6 +254,10 @@ module.exports = function (grunt) {
           }
         }
       });
+
+      for(var packageKey in excluded_bundles){
+        delete bundles[packageKey];
+      }
 
       if (!TASK_SKIP_INIT) {
         var myIndexBnudles = indexBundles;
