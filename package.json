@@ -43,7 +43,13 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-webfont": "^0.5.4"
   },
-  "peerDependencies": {
-  },
-  "keywords": ["gruntplugin"]
+  "peerDependencies": {},
+  "keywords": [
+    "gruntplugin"
+  ],
+  "dependencies": {
+    "find": "^0.2.3",
+    "promise": "^7.0.4",
+    "underscore": "^1.8.3"
+  }
 }

@@ -92,6 +92,7 @@ module.exports = function (grunt) {
           level: 9
         }),
         //require('connect-livereload')(),
+        connect.static(options.base),
         function (req, res, next) {
           if (req.headers.origin === undefined) {
             res.setHeader('Access-Control-Allow-Origin', "*");
@@ -100,26 +101,26 @@ module.exports = function (grunt) {
           }
           res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
           console.log(req.method + " on " + req.originalUrl);
-          if (req.originalUrl.indexOf("/data/") === 0) {
-            res.setHeader('Access-Control-Allow-Headers', 'content-type');
-            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-            res.setHeader('Content-Length', '0');
-            res.setHeader('Content-Type', 'application/json; charset=utf-8');
-            datahandler(req, res, STUBS_URL);
-            res.end();
-          } else if (req.originalUrl.indexOf("/app/") === 0) {
+          if (req.originalUrl.indexOf("/app/") === 0) {
             var body = grunt.file.read(options.base + "index.html");
             res.write(body);
             res.end();
           } else {
-            next();
+            res.setHeader('Access-Control-Allow-Headers', 'content-type');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            res.setHeader('Content-Length', '0');
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            datahandler(req, res, STUBS_URL, function(){
+              console.log("first end");
+              res.end();
+            });
           }
         },
-        connect.static(options.base),
         function (req, res, next) {
           if (!(/\/(src|dist|data)\//).test(req.originalUrl)) {
             var body = grunt.file.read("index.html");
             res.write(body);
+            console.log("2nd end");
             res.end();
           } else {
             next();
@@ -340,6 +341,7 @@ module.exports = function (grunt) {
     if (TASK_BUNDLIFY || TASK_SCAN) {
       bundler(options)
     } else if (TASK_SERVER) {
+     // global.__base = options.src;
       datahandler = require(__dirname + "/../utils/stubshandler");
       var _bootServerOptions = Object.create(bootServerOptions);
       mixin(_bootServerOptions,options.bootServer);
