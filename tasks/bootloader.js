@@ -309,7 +309,7 @@ module.exports = function (grunt) {
                 .split(">").map(function(v) {
                   return v.trim();
                 }).join(">")+'</script>';
-            }
+            }git
             grunt.file.write(bundledFile+".html",html_file_content);
           }
 

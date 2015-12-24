@@ -2,6 +2,11 @@ var fs = require('fs');
 var find = require("find");
 var dummyjson = require('dummy-json');
 var Promise = require('promise');
+var sessionManager = require('session-manager');
+
+// Best to use one shared session manager across requests
+var sessionManager = sessionManager.create({engine: 'memory'});
+var User = require(__dirname+"/user");
 
 if(!fs.existsSync('app')){
   fs.mkdirSync("app");
@@ -115,9 +120,20 @@ module.exports = function(req,resp,dir, next){
     }
   }
   if(MAPPER){
-    var retObj = MAPPER.callback.apply(new Controller(req,resp,{
-        helpers : helpers
-      }),
+    var session = sessionManager.start(req, resp);
+
+    var controller = new Controller(req,resp,{
+      helpers : helpers
+    });
+
+    controller.user = session.get("__USER__");
+
+    if(!controller.user){
+      controller.user = new User();
+      session.set("__USER__", controller.user);
+    }
+
+    var retObj = MAPPER.callback.apply(controller,
       MAPPER.argParams.map(function(param){
         return PATHTokens[param.index];
       }));

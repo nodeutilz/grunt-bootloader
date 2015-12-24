@@ -8,12 +8,12 @@ var Promise = require('promise');
 var dummyjson = require('dummy-json');
 
 var TEMPS = {};
-var JSON = {};
+var JSON_MAP = {};
 
 function Controller(req,resp,META){
   this.request = req;
   this.response = resp;
-  this.META = META
+  this.META = META;
 }
 
 Controller.prototype._render_view = function(path,data,resolve,reject){
@@ -44,11 +44,11 @@ Controller.prototype.view = function(path,data){
 Controller.prototype._render_json = function(path,data,resolve,reject){
   try {
     return resolve(dummyjson.parse(
-      JSON[path],
+      JSON_MAP[path],
       {helpers: this.META.helpers, data : data}
     ));
   } catch(e) {
-    console.error(e);
+    console.error("controller.js",e);
     return reject(e);
   }
 };
@@ -56,11 +56,18 @@ Controller.prototype._render_json = function(path,data,resolve,reject){
 Controller.prototype.json = function(path,data){
   var self = this;
   return new Promise(function(resolve,reject){
-    if(TEMPS[path]==undefined){
+    if(typeof path === 'object'){
+      try{
+        resolve(JSON.stringify(path));
+      } catch(e) {
+        console.error("controller.js",e);
+        return reject(e);
+      }
+    } else if(TEMPS[path] === undefined){
       fs.readFile("app/data/"+path, {encoding: 'utf8'},function (err, content) {
         console.log("content",content);
         if (err) throw err;
-        JSON[path] = content;
+        JSON_MAP[path] = content;
         self._render_json(path,data,resolve,reject);
       });
     } else {
