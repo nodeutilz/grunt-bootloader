@@ -39,7 +39,7 @@ Object.keys(helperJSON).map(function(key){
 
 var MAPPERS = [];
 
-function registerMapper(mapper){
+function registerMapper(mapper,options){
 
   var matcher = new RegExp("^"+mapper.replace(/\{(.*?)\}/gi,'([a-z-A-Z])+').replace(/\//gi,"\/").replace(/\*/gi,"(.)*")+"$")
   var tokens =   (mapper).split(/[\/]+/gi);
@@ -61,7 +61,8 @@ function registerMapper(mapper){
   MAPPERS.push({
     mapper :  mapper,
     placeholders : placeholders,
-    matcher : matcher, tokens : tokens
+    matcher : matcher, tokens : tokens,
+    roles : options.roles || []
   });
   return MAPPERS[MAPPERS.length-1];
 }
@@ -71,9 +72,9 @@ var router = {
   on : function(mapOrUrl,callback){
     var mapObj = {};
     if(typeof mapOrUrl === "string"){
-      mapObj = registerMapper(mapOrUrl);
+      mapObj = registerMapper(mapOrUrl,{});
     } else {
-      mapObj = registerMapper(mapOrUrl.url);
+      mapObj = registerMapper(mapOrUrl.url,mapOrUrl);
     }
     var headStr = callback.toString().split("{")[0]; //headStr will look like this: "function(jq, abc, xyz)">>string
     var headStrArg = headStr.substr(headStr.indexOf("(") + 1).split(")")[0]; //headStrArg will look like : "jq, abc, xyz">>string
@@ -106,6 +107,10 @@ find.file("app/controller", function(files) {
 var Controller = require(__dirname+"/controller");
 
 module.exports = function(req,resp,dir, next){
+  var session = sessionManager.start(req, resp);
+  var user = session.get("__USER__") || new User();
+  user.__xscount__ ++;
+
 	var method = "GET";//req.method;
   var pathname = req._parsedUrl.pathname;
   var PATHTokens = pathname.split(/[\/]+/gi);
@@ -114,24 +119,22 @@ module.exports = function(req,resp,dir, next){
   var MAPPER = null;
   for(var i in MAPPERS){
     var _tokenDiff = PATHTokens.length - MAPPERS[i].tokens.length;
-    if(MAPPERS[i].matcher.test(pathname) && _tokenDiff<=tokenDiff && _tokenDiff>-1){
+    console.log("======",MAPPERS[i].matcher,user.role,pathname);
+    if(MAPPERS[i].matcher.test(pathname)
+      && _tokenDiff<=tokenDiff && _tokenDiff>-1
+      && (MAPPERS[i].roles.length==0 || MAPPERS[i].roles.indexOf(user.role) >= 0)){
       tokenDiff = _tokenDiff;
       MAPPER = MAPPERS[i];
     }
   }
+
   if(MAPPER){
-    var session = sessionManager.start(req, resp);
 
     var controller = new Controller(req,resp,{
       helpers : helpers
     });
-
-    controller.user = session.get("__USER__");
-
-    if(!controller.user){
-      controller.user = new User();
-      session.set("__USER__", controller.user);
-    }
+    controller.user = user;
+    session.set("__USER__", user);
 
     var retObj = MAPPER.callback.apply(controller,
       MAPPER.argParams.map(function(param){

@@ -5,6 +5,7 @@
 var User = function User(){
   this.valid = false;
   this.__MAP__ = {};
+  this.__xscount__ = 0;
 };
 
 User.prototype.setValid = function(isValid){
