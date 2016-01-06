@@ -103,11 +103,6 @@ find.file("app/controller", function(files) {
     var filez = files[i].split(/[\/]+/gi);
     require(process.env.PWD+"/"+files[i].replace(/\.js$/,""))(router);
   }
-  router.on({
-    "url" : "/___creatsession___"
-  },function(){
-    return this.json({});
-  });
 });
 
 var Controller = require(__dirname+"/controller");
