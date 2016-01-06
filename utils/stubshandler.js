@@ -2,10 +2,11 @@ var fs = require('fs');
 var find = require("find");
 var dummyjson = require('dummy-json');
 var Promise = require('promise');
-var sessionManager = require('session-manager');
+var sessionManagerModule = require(__dirname + '/../session-manager');
+var Cookies = require( "cookies" );
 
 // Best to use one shared session manager across requests
-var sessionManager = sessionManager.create({engine: 'memory'});
+var sessionManager = sessionManagerModule.create({engine: 'memory'});
 var User = require(__dirname+"/user");
 
 if(!fs.existsSync('app')){
@@ -102,13 +103,28 @@ find.file("app/controller", function(files) {
     var filez = files[i].split(/[\/]+/gi);
     require(process.env.PWD+"/"+files[i].replace(/\.js$/,""))(router);
   }
+  router.on({
+    "url" : "/___creatsession___"
+  },function(){
+    return this.json({});
+  });
 });
 
 var Controller = require(__dirname+"/controller");
 
 module.exports = function(req,resp,dir, next){
+  var user;
+  var cookies = new Cookies( req, resp);
   var session = sessionManager.start(req, resp);
-  var user = session.get("__USER__") || new User();
+  if(true){
+    var dirs = req._parsedUrl.pathname.split("/");
+    dirs.pop(); dirs = dirs.join("/");
+    var session_id = session.getSessionId();
+    cookies.set(sessionManagerModule.create.sessionIDCookieName,undefined,{ path : dirs });
+    cookies.set(sessionManagerModule.create.sessionIDCookieName,session_id,{ path : "/" });
+  }
+
+  user = session.get("__USER__") || new User();
   user.__xscount__ ++;
 
 	var method = "GET";//req.method;
@@ -133,8 +149,11 @@ module.exports = function(req,resp,dir, next){
     var controller = new Controller(req,resp,{
       helpers : helpers
     });
-    controller.user = user;
-    session.set("__USER__", user);
+
+    if(session){
+      controller.user = user;
+      session.set("__USER__", user);
+    }
 
     var retObj = MAPPER.callback.apply(controller,
       MAPPER.argParams.map(function(param){
