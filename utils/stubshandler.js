@@ -135,7 +135,7 @@ module.exports = function(req,resp,dir, next){
   var MAPPER = null;
   for(var i in MAPPERS){
     var _tokenDiff = PATHTokens.length - MAPPERS[i].tokens.length;
-    console.log("======",MAPPERS[i].matcher,user.role,pathname);
+    //console.log("======",MAPPERS[i].matcher,user.role,pathname);
     if(MAPPERS[i].matcher.test(pathname)
       && _tokenDiff<=tokenDiff && _tokenDiff>-1
       && (MAPPERS[i].roles.length==0 || MAPPERS[i].roles.indexOf(user.role) >= 0)){
@@ -150,10 +150,12 @@ module.exports = function(req,resp,dir, next){
       helpers : helpers
     });
 
-    if(session){
+    //if(session){
       controller.user = user;
+      controller.session = session;
+      controller.cookies = cookies;
       session.set("__USER__", user);
-    }
+    //}
 
     var retObj = MAPPER.callback.apply(controller,
       MAPPER.argParams.map(function(param){
@@ -170,14 +172,20 @@ module.exports = function(req,resp,dir, next){
       next();
     }
   } else {
-    resp.write(JSON.stringify({ x : "No URL Mapping Found" }));
+    console.error("No URL Mapping Found");
+    //resp.write(JSON.stringify({ x : "No URL Mapping Found" }));
     var filepath = dir+req.originalUrl.split("?")[0]+".res";
-    resp.write(
-      dummyjson.parse(
-        fs.readFileSync(filepath, {encoding: 'utf8'}),
-        {helpers: helpers}
-      )
-    );
+    if(fs.existsSync(filepath)){
+      resp.write(
+        dummyjson.parse(
+          fs.readFileSync(filepath, {encoding: 'utf8'}),
+          {helpers: helpers}
+        )
+      );
+    } else {
+      console.error(filepath, "Not Found");
+      resp.writeHead(404,{ message : " File Not Found", file : filepath});
+    }
     next();
   }
 };
