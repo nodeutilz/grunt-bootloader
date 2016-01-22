@@ -9,16 +9,21 @@
 var engine = (function() {
     var that = {};
     var storage = {};
-    
+
     that.set = function(session_id, key, value) {
         if (typeof storage[session_id] === "undefined") {
-            storage[session_id] = {}
+            storage[session_id] = { __$expireTime__ : 1 };
         }
         storage[session_id][key] = value;
         return that;
     }
     that.get = function(session_id, key) {
         return storage[session_id] && storage[session_id][key] || undefined;
+    }
+    that.ping = function(session_id){
+      if (typeof storage[session_id] !== "undefined") {
+        storage[session_id].__$expiry__ = (new Date()).getTime() + (storage[session_id].__$expireTime__ * 60000);
+      }
     }
     
     return that;

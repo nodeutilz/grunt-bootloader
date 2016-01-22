@@ -101,8 +101,8 @@ module.exports = function (grunt) {
           }
           res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
           console.log(req.method + " on " + req.originalUrl);
-          if (req.originalUrl.indexOf("/app/") === 0) {
-            var body = grunt.file.read(options.base + "index.html");
+          if (!(/\/(src|dist|data)\//).test(req.originalUrl)) {
+            var body = grunt.file.read("index.html");
             res.write(body);
             res.end();
           } else {
@@ -113,6 +113,7 @@ module.exports = function (grunt) {
             datahandler(req, res, STUBS_URL, function(){
               console.log("first end");
               res.end();
+              //next();
             });
           }
         },
