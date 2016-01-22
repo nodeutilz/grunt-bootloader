@@ -42,7 +42,7 @@ var MAPPERS = [];
 
 function registerMapper(mapper,options){
 
-  var matcher = new RegExp("^"+mapper.replace(/\{(.*?)\}/gi,'([a-z-A-Z])+').replace(/\//gi,"\/").replace(/\*/gi,"(.)*")+"$")
+  var matcher = new RegExp("^"+mapper.replace(/\{(.*?)\}/gi,'([a-z-A-Z-0-9])+').replace(/\//gi,"\/").replace(/\*/gi,"(.)*")+"$")
   var tokens =   (mapper).split(/[\/]+/gi);
 
   var placeholders = tokens.map(function(str,index){
