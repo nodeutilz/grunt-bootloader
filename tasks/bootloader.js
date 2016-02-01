@@ -92,8 +92,7 @@ module.exports = function (grunt) {
           level: 9
         }),
         //require('connect-livereload')(),
-        connect.static(options.base),
-        function (req, res, next) {
+        function(req, res, next){
           if (req.headers.origin === undefined) {
             res.setHeader('Access-Control-Allow-Origin', "*");
           } else {
@@ -101,6 +100,21 @@ module.exports = function (grunt) {
           }
           res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
           console.log(req.method + " on " + req.originalUrl);
+          if (req.method === "OPTIONS") {
+            res.setHeader('Access-Control-Allow-Headers', 'content-type');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            res.setHeader('Content-Length', '0');
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            var body = grunt.file.read(req.originalUrl.split("?")[0]);
+            //res.write(body);
+            res.end("200");
+            //next();
+          } else {
+            next();
+          }
+        },
+        connect.static(options.base),
+        function (req, res, next) {
           if (!(/\/(src|dist|data)\//).test(req.originalUrl)) {
             var body = grunt.file.read("index.html");
             res.write(body);
@@ -118,6 +132,11 @@ module.exports = function (grunt) {
           }
         },
         function (req, res, next) {
+          if (req.headers.origin === undefined) {
+            res.setHeader('Access-Control-Allow-Origin', "*");
+          } else {
+            res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+          }
           if (!(/\/(src|dist|data)\//).test(req.originalUrl)) {
             var body = grunt.file.read("index.html");
             res.write(body);
