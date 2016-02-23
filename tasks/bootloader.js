@@ -163,7 +163,7 @@ module.exports = function (grunt) {
     var bundles = {};
     var dir = options.src;
     var dest = options.dest;
-    var resourcesFile = options.resourcesJson;
+    var resourcesFile = options.resourceJson;
     var indexBundles = options.indexBundles;
     var traversed_bundles = {}, traversed_files = {},excluded_bundles = {};
     var version = new Date().getTime();
@@ -369,7 +369,7 @@ module.exports = function (grunt) {
       indexBundles: ["webmodules/bootloader", "project/app"],
       src: "./",
       dest: "dist",
-      resourcesJson: "dist/resource.json"
+      resourceJson: "dist/resource.json"
     });
 
     if (TASK_BUNDLIFY || TASK_SCAN) {
