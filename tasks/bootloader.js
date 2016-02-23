@@ -280,6 +280,8 @@ module.exports = function (grunt) {
         delete bundles[packageKey];
       }
 
+      var firstIndexBundled = null;
+
       if (!TASK_SKIP_INIT) {
         var myIndexBnudles = indexBundles;
         if (TASK_BUNDLIFY) {
@@ -306,6 +308,10 @@ module.exports = function (grunt) {
           var files = getFiles(bundleName, {js : [], html : []}, bundledFile, includedBundles);
           var js_files = uniqueArray(files.js.reverse()).reverse();
           if (js_files.length > 0) {
+            if(!firstIndexBundled &&  options.resourcesInline){
+              firstIndexBundled = bundleName;
+              js_files.unshift(resourcesFile+".js");
+            }
             _bundleMap[bundledFile_js] = js_files;
             //console.log("files",bundleName,files.length,files);
             setBundleConfig(bundleName, _bundleMap, includedBundles,bundledFile_js);
@@ -335,10 +341,18 @@ module.exports = function (grunt) {
 
         });
 
+        if(firstIndexBundled){
+          grunt.file.write(resourcesFile+".js", "var _BOOTLOADER_CONFIG_=" + JSON.stringify({
+            RESOURCES_JSON : resourcesJs,
+            RESOURCES_FILE: resourcesFile
+          }));
+          resourcesJs.bundles[firstIndexBundled].js.unshift(resourcesFile+".js");
+        }
+
         grunt.task.run("uglify");
       }
 
-      grunt.file.write(dest + "/" + resourcesFile, JSON.stringify(resourcesJs));
+      grunt.file.write(resourcesFile, JSON.stringify(resourcesJs));
     }
   }
 
@@ -354,8 +368,8 @@ module.exports = function (grunt) {
       version: new Date().getTime(0),
       indexBundles: ["webmodules/bootloader", "project/app"],
       src: "./",
-      dest: "dest",
-      resourcesJson: "resource.json"
+      dest: "dist",
+      resourcesJson: "dist/resource.json"
     });
 
     if (TASK_BUNDLIFY || TASK_SCAN) {
