@@ -4,6 +4,8 @@ var dummyjson = require('dummy-json');
 var Promise = require('promise');
 var sessionManagerModule = require(__dirname + '/../session-manager');
 var Cookies = require( "cookies" );
+var url = require('url');
+qs = require('querystring');
 
 // Best to use one shared session manager across requests
 var sessionManager = sessionManagerModule.create({engine: 'memory'});
@@ -30,6 +32,8 @@ var helperJSON = JSON.parse(fs.readFileSync("app/helper.json", {encoding: 'utf8'
 var randomVal = function(type) {
 	  return helperJSON[type][dummyjson.randomInt(0,helperJSON[type].length-1)];
 };
+
+console.log("helperJSONhelperJSONhelperJSON",helperJSON)
 
 var helpers = {};
 Object.keys(helperJSON).map(function(key){
@@ -106,6 +110,10 @@ find.file("app/controller", function(files) {
 });
 
 var Controller = require(__dirname+"/controller");
+var textBody = require("body")
+var jsonBody = require("body/json")
+var formBody = require("body/form")
+var anyBody = require("body/any")
 
 module.exports = function(req,resp,dir, next){
   var user;
@@ -138,49 +146,86 @@ module.exports = function(req,resp,dir, next){
       MAPPER = MAPPERS[i];
     }
   }
+  var _POST_DATA_,_GET_DATA_;
+  var _helpers = {
+    PATH : function(i){
+      return PATHTokens[i]
+    },POST : function(key){
+      return _POST_DATA_ ? _POST_DATA_[key] : "";
+    }, GET : function(key){
+      if(!_GET_DATA_){
+        _GET_DATA_ = url.parse(req.url,true);
+      }
+      return _GET_DATA_.query[key];
+    }
+  };
+  for(var i in helpers){
+    _helpers[i] = helpers[i];
+  }
+  (function(callback){
+    if(req.method === "GET"){
+      callback();
+    } else {
+      //var body='';
+      if(!_POST_DATA_){
+        formBody(req, function(err, body){
+          _POST_DATA_ = body;
+          callback();
+        });
+//        req.on('data', function (data) {
+//          body +=data;
+//        });
+//        req.on('end',function(){
+//          _POST_DATA_ =  qs.parse(body);
+//          console.log("req.method",_POST_DATA_);
+//          callback();
+//        });
+      }
+    }
+  })(function(){
+    if(MAPPER){
+      var controller = new Controller(req,resp,{
+        helpers : _helpers
+      });
 
-  if(MAPPER){
-
-    var controller = new Controller(req,resp,{
-      helpers : helpers
-    });
-
-    //if(session){
+      //if(session){
       controller.user = user;
       controller.session = session;
       controller.cookies = cookies;
       session.set("__USER__", user);
-    //}
+      //}
 
-    var retObj = MAPPER.callback.apply(controller,
-      MAPPER.argParams.map(function(param){
-        return PATHTokens[param.index];
-      }));
-    if(retObj !== undefined && typeof retObj.done === 'function' && typeof retObj.finally === 'function'){
-      retObj.then(function(retresp){
-        resp.write(retresp);
-      }).finally(function(resp){
-        console.log("finally",resp);
+      var retObj = MAPPER.callback.apply(controller,
+        MAPPER.argParams.map(function(param){
+          return PATHTokens[param.index];
+        }));
+      if(retObj !== undefined && typeof retObj.done === 'function' && typeof retObj.finally === 'function'){
+        retObj.then(function(retresp){
+          resp.write(retresp);
+        }).finally(function(resp){
+          console.log("finally",resp);
+          next();
+        });
+      } else {
         next();
-      });
+      }
     } else {
+      console.error("No URL Mapping Found");
+      //resp.write(JSON.stringify({ x : "No URL Mapping Found" }));
+      var filepath = dir+req.originalUrl.split("?")[0]+".res";
+      if(fs.existsSync(filepath)){
+        resp.write(
+          dummyjson.parse(
+            fs.readFileSync(filepath, {encoding: 'utf8'}),
+            {helpers: _helpers}
+          )
+        );
+      } else {
+        console.error(filepath, "Not Found");
+        resp.writeHead(404,{ message : " File Not Found", file : filepath});
+      }
       next();
     }
-  } else {
-    console.error("No URL Mapping Found");
-    //resp.write(JSON.stringify({ x : "No URL Mapping Found" }));
-    var filepath = dir+req.originalUrl.split("?")[0]+".res";
-    if(fs.existsSync(filepath)){
-      resp.write(
-        dummyjson.parse(
-          fs.readFileSync(filepath, {encoding: 'utf8'}),
-          {helpers: helpers}
-        )
-      );
-    } else {
-      console.error(filepath, "Not Found");
-      resp.writeHead(404,{ message : " File Not Found", file : filepath});
-    }
-    next();
-  }
+  });
+
 };
