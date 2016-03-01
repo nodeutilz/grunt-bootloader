@@ -72,13 +72,14 @@ module.exports = function (grunt) {
   }
 
   var TASK_BUNDLIFY, TASK_SCAN, TASK_SKIP_INIT, TASK_SERVER;
-  var datahandler,STUBS_URL = "./app";
+  var datahandler,STUBS_URL = "./app", CONTROLLER_MATCH;
 
   var bootServerOptions = {
       port: 8090,
       hostname: "*",
       base: './',
       keepalive: true,
+      noBypass : /\/(view|json|data|swagger)\//,
     /**
      * Description
      * @method middleware
@@ -115,7 +116,7 @@ module.exports = function (grunt) {
         },
         connect.static(options.base),
         function (req, res, next) {
-          if (!(/\/(src|dist|data)\//).test(req.originalUrl)) {
+          if (!(/\/(src|dist|data)\//).test(req.originalUrl) || !(CONTROLLER_MATCH).test(req.originalUrl)) {
             var body = grunt.file.read("index.html");
             res.write(body);
             res.end();
@@ -137,7 +138,7 @@ module.exports = function (grunt) {
           } else {
             res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
           }
-          if (!(/\/(src|dist|data)\//).test(req.originalUrl)) {
+          if (!(/\/(src|dist|data)\//).test(req.originalUrl) || !(CONTROLLER_MATCH).test(req.originalUrl)) {
             var body = grunt.file.read("index.html");
             res.write(body);
             console.log("2nd end");
@@ -379,8 +380,16 @@ module.exports = function (grunt) {
       datahandler = require(__dirname + "/../utils/stubshandler");
       var _bootServerOptions = Object.create(bootServerOptions);
       mixin(_bootServerOptions,options.bootServer);
+      CONTROLLER_MATCH = _bootServerOptions.noBypass;
       grunt.config("connect.bootServer.options", _bootServerOptions);
       grunt.task.run("connect:bootServer");
+    } else if(arg1 === "swagger"){
+      ([
+        "controller/SwaggerController.js",
+        "view/swaggerui.html"
+      ]).forEach(function(file){
+        grunt.file.copy(__dirname+"/../examples/"+file, "app/"+file);
+      })
     }
 
   });

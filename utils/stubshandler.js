@@ -5,7 +5,7 @@ var Promise = require('promise');
 var sessionManagerModule = require(__dirname + '/../session-manager');
 var Cookies = require( "cookies" );
 var url = require('url');
-qs = require('querystring');
+var qs = require('qs');
 
 // Best to use one shared session manager across requests
 var sessionManager = sessionManagerModule.create({engine: 'memory'});
@@ -115,6 +115,19 @@ var jsonBody = require("body/json")
 var formBody = require("body/form")
 var anyBody = require("body/any")
 
+
+function getValue(obj,path){
+  var paths = path.split(".");
+  var _obj = obj;
+  for(var i in paths){
+    if(_obj[paths[i]]==undefined){
+        return undefined;
+    }
+    _obj = _obj[paths[i]];
+  }
+  return _obj;
+}
+
 module.exports = function(req,resp,dir, next){
   var user;
   var cookies = new Cookies( req, resp);
@@ -151,12 +164,15 @@ module.exports = function(req,resp,dir, next){
     PATH : function(i){
       return PATHTokens[i]
     },POST : function(key){
-      return _POST_DATA_ ? _POST_DATA_[key] : "";
+      return _POST_DATA_ ? getValue(_POST_DATA_,key) : "";
     }, GET : function(key){
       if(!_GET_DATA_){
         _GET_DATA_ = url.parse(req.url,true);
       }
-      return _GET_DATA_.query[key];
+      return getValue(_GET_DATA_.query,key);
+    },
+    HEADER : function(key){
+      return req.headers[key];
     }
   };
   for(var i in helpers){
@@ -166,26 +182,30 @@ module.exports = function(req,resp,dir, next){
     if(req.method === "GET"){
       callback();
     } else {
-      //var body='';
       if(!_POST_DATA_){
-        formBody(req, function(err, body){
-          _POST_DATA_ = body;
-          callback();
-        });
-//        req.on('data', function (data) {
-//          body +=data;
-//        });
-//        req.on('end',function(){
-//          _POST_DATA_ =  qs.parse(body);
-//          console.log("req.method",_POST_DATA_);
+//        jsonBody(req, resp,function(err, body){
+//          _POST_DATA_ = body;
+//          console.log("_POST_DATA_",_POST_DATA_)
 //          callback();
 //        });
+        var body='';
+        req.on('data', function (data) {
+          body +=data;
+        });
+        req.on('end',function(){
+          _POST_DATA_ =  qs.parse(body);
+          callback();
+        });
       }
     }
   })(function(){
     if(MAPPER){
       var controller = new Controller(req,resp,{
-        helpers : _helpers
+        helpers : _helpers,
+        path : _helpers.PATH,
+        get : _helpers.GET,
+        post : _helpers.POST,
+        header : _helpers.HEADER
       });
 
       //if(session){
