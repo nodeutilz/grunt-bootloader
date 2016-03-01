@@ -105,7 +105,7 @@ var router = {
 find.file("app/controller", function(files) {
   for(var i in files){
     var filez = files[i].split(/[\/]+/gi);
-    require(process.env.PWD+"/"+files[i].replace(/\.js$/,""))(router);
+    require(process.cwd()+"/"+files[i].replace(/\.js$/,""))(router);
   }
 });
 
