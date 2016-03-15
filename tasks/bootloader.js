@@ -72,14 +72,31 @@ module.exports = function (grunt) {
   }
 
   var TASK_BUNDLIFY, TASK_SCAN, TASK_SKIP_INIT, TASK_SERVER;
-  var datahandler,STUBS_URL = "./app", CONTROLLER_MATCH;
+  var datahandler,STUBS_URL = "./app", CONTROLLER_MATCH,INDEX_MATCH;
+
+  function showIndex(url){
+    if((/\/(src|dist|data)\//).test(url)){
+      return false;
+    }
+    if(INDEX_MATCH && (INDEX_MATCH).test(url)){
+      return true;
+    }
+    if((CONTROLLER_MATCH).test(url)){
+      return false;
+    }
+    if(INDEX_MATCH){
+      return false;
+    }
+    return true;
+  }
 
   var bootServerOptions = {
       port: 8090,
       hostname: "*",
       base: './',
       keepalive: true,
-      noBypass : /\/(view|json|data|swagger)\//,
+      noBypass : /^\/(view|json|data|swagger)\//,
+      indexMatch : false,
     /**
      * Description
      * @method middleware
@@ -116,7 +133,7 @@ module.exports = function (grunt) {
         },
         connect.static(options.base),
         function (req, res, next) {
-          if (!(/\/(src|dist|data)\//).test(req.originalUrl) || !(CONTROLLER_MATCH).test(req.originalUrl)) {
+          if (showIndex(req.originalUrl)) {
             var body = grunt.file.read("index.html");
             res.write(body);
             res.end();
@@ -138,7 +155,7 @@ module.exports = function (grunt) {
           } else {
             res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
           }
-          if (!(/\/(src|dist|data)\//).test(req.originalUrl) || !(CONTROLLER_MATCH).test(req.originalUrl)) {
+          if (showIndex(req.originalUrl)) {
             var body = grunt.file.read("index.html");
             res.write(body);
             console.log("2nd end");
@@ -381,6 +398,7 @@ module.exports = function (grunt) {
       var _bootServerOptions = Object.create(bootServerOptions);
       mixin(_bootServerOptions,options.bootServer);
       CONTROLLER_MATCH = _bootServerOptions.noBypass;
+      INDEX_MATCH = _bootServerOptions.indexMatch;
       grunt.config("connect.bootServer.options", _bootServerOptions);
       grunt.task.run("connect:bootServer");
     } else if(arg1 === "swagger"){
