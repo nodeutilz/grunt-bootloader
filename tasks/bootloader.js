@@ -8,6 +8,10 @@
 
 'use strict';
 
+var serveStatic = require('serve-static');
+var serveIndex = require('serve-index');
+var path = require('path');
+
 module.exports = function (grunt) {
 
   function cleanURL(url) {
@@ -91,12 +95,13 @@ module.exports = function (grunt) {
   }
 
   var bootServerOptions = {
-      port: 8090,
-      hostname: "*",
-      base: './',
-      keepalive: true,
-      noBypass : /^\/(view|json|data|swagger)\//,
-      indexMatch : false,
+    port: 8090,
+    hostname: "*",
+    base: './',
+    directory : "./",
+    keepalive: true,
+    noBypass : /^\/(view|json|data|swagger)\//,
+    indexMatch : false,
     /**
      * Description
      * @method middleware
@@ -104,12 +109,10 @@ module.exports = function (grunt) {
      * @param {} options
      * @return ArrayExpression
      */
-      middleware: function (connect, options) {
+    middleware: function (connect, options) {
+      var _staticPath = path.resolve(options.directory);
+      //serveStatic(_staticPath), serveIndex(_staticPath)
       return [
-        connect.compress({
-          level: 9
-        }),
-        //require('connect-livereload')(),
         function(req, res, next){
           if (req.headers.origin === undefined) {
             res.setHeader('Access-Control-Allow-Origin', "*");
@@ -131,7 +134,8 @@ module.exports = function (grunt) {
             next();
           }
         },
-        connect.static(options.base),
+        serveStatic(_staticPath),
+        //connect.static(options.base),
         function (req, res, next) {
           if (showIndex(req.originalUrl)) {
             var body = grunt.file.read("index.html");
@@ -164,7 +168,8 @@ module.exports = function (grunt) {
             next();
           }
         },
-        connect.directory(options.base)
+        serveIndex(_staticPath)
+        //connect.directory(options.base)
       ];
     }
   };
@@ -393,7 +398,7 @@ module.exports = function (grunt) {
     if (TASK_BUNDLIFY || TASK_SCAN) {
       bundler(options)
     } else if (TASK_SERVER) {
-     // global.__base = options.src;
+      // global.__base = options.src;
       datahandler = require(__dirname + "/../utils/stubshandler");
       var _bootServerOptions = Object.create(bootServerOptions);
       mixin(_bootServerOptions,options.bootServer);
@@ -406,8 +411,8 @@ module.exports = function (grunt) {
         "controller/SwaggerController.js",
         "view/swaggerui.html"
       ]).forEach(function(file){
-        grunt.file.copy(__dirname+"/../examples/"+file, "app/"+file);
-      })
+          grunt.file.copy(__dirname+"/../examples/"+file, "app/"+file);
+        })
     }
 
   });
