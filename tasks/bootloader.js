@@ -303,7 +303,7 @@ module.exports = function (grunt) {
       if (!TASK_SKIP_INIT) {
         var myIndexBnudles = indexBundles;
         if (TASK_BUNDLIFY) {
-          var moreBundles = Object.keys(bundles);
+          var moreBundles = Object.keys(bundles).sort();
 
           if(options.projectPrefix !== undefined){
             myIndexBnudles = uniqueArray(myIndexBnudles.concat(moreBundles.filter(function(bundleName){
