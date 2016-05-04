@@ -183,6 +183,7 @@ module.exports = function (grunt) {
     var dest = options.dest;
     var resourcesFile = options.resourceJson;
     var indexBundles = options.indexBundles;
+    var titleIndexBnudles = [];
     var traversed_bundles = {}, traversed_files = {},excluded_bundles = {};
     var version = new Date().getTime();
     var resourcesJs = {};
@@ -252,6 +253,7 @@ module.exports = function (grunt) {
             }
           }
           if (packageName !== undefined) {
+            titleIndexBnudles.push(packageName);
             for (var bundleName in _bundles) {
               if ((bundleName === packageName || bundleName.indexOf(packageName + "/") === 0) && !excluded_bundles[bundleName]) {
                 if (bundles[bundleName]) {
@@ -306,14 +308,14 @@ module.exports = function (grunt) {
           var moreBundles = Object.keys(bundles).sort();
 
           if(options.projectPrefix !== undefined){
-            myIndexBnudles = uniqueArray(myIndexBnudles.concat(moreBundles.filter(function(bundleName){
+            myIndexBnudles = uniqueArray(myIndexBnudles.concat(titleIndexBnudles.concat(moreBundles).filter(function(bundleName){
               return bundleName.indexOf(options.projectPrefix) === 0;
             })));
           }
 
-          myIndexBnudles = uniqueArray(myIndexBnudles.concat(moreBundles.filter(function (bundleName) {
+          myIndexBnudles = uniqueArray(myIndexBnudles.concat(titleIndexBnudles.concat(moreBundles))).filter(function (bundleName) {
             return !endsWith(bundleName, "/min") && !endsWith(bundleName, "/test");
-          })));
+          });
 
         }
 
