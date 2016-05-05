@@ -60,6 +60,10 @@ module.exports = function (grunt) {
     return str.indexOf(suffix, str.length - suffix.length) !== -1;
   }
 
+  function toIgnore(bundleName){
+    return endsWith(bundleName, "/min") || endsWith(bundleName, "/test");
+  }
+
   function setBundleConfig(bundleName, _bundleMap, includedBundles,bundledFile) {
     var targetName = bundleName.split(/[\/.]/).join("_");
     grunt.config("uglify." + targetName + ".files", _bundleMap);
@@ -183,7 +187,7 @@ module.exports = function (grunt) {
     var dest = options.dest;
     var resourcesFile = options.resourceJson;
     var indexBundles = options.indexBundles;
-    var titleIndexBnudles = [];
+    var titleIndexBnudles = {};
     var traversed_bundles = {}, traversed_files = {},excluded_bundles = {};
     var version = new Date().getTime();
     var resourcesJs = {};
@@ -253,11 +257,13 @@ module.exports = function (grunt) {
             }
           }
           if (packageName !== undefined) {
-            titleIndexBnudles.push(packageName);
+            titleIndexBnudles[packageName] = [];
             for (var bundleName in _bundles) {
               if ((bundleName === packageName || bundleName.indexOf(packageName + "/") === 0) && !excluded_bundles[bundleName]) {
                 if (bundles[bundleName]) {
                   console.log("====Duplicate Package", bundleName);
+                } else if(!toIgnore(bundleName)){
+                  titleIndexBnudles[packageName].push(bundleName);
                 }
                 bundles[bundleName] = { js: [], on: [], css: [], html : [], packageInfo : packageInfo};
                 for (var file_i in _bundles[bundleName].js) {
@@ -296,6 +302,15 @@ module.exports = function (grunt) {
         }
       });
 
+
+      var titleIndexBnudlesNames =  Object.keys(titleIndexBnudles);
+//      titleIndexBnudlesNames.map(function(bundName){
+//        if(!bundles[bundName] && !toIgnore(bundName)){
+//          bundles[bundName] =  { js: [], on: titleIndexBnudles[bundName], css: [], html : [], packageInfo : {}}
+//          console.log("New Package ",bundName,bundles[bundName]);
+//        }
+//      });
+
       for(var packageKey in excluded_bundles){
         delete bundles[packageKey];
       }
@@ -307,23 +322,23 @@ module.exports = function (grunt) {
         if (TASK_BUNDLIFY) {
 
           var moreBundles = Object.keys(bundles);
+
           if(options.sort){
             moreBundles = moreBundles.sort();
           }
 
           if(options.projectPrefix !== undefined){
-            myIndexBnudles = uniqueArray(myIndexBnudles.concat(titleIndexBnudles.concat(moreBundles).filter(function(bundleName){
+            myIndexBnudles = uniqueArray(myIndexBnudles.concat(titleIndexBnudlesNames.concat(moreBundles).filter(function(bundleName){
               return bundleName.indexOf(options.projectPrefix) === 0;
             })));
           }
 
-          myIndexBnudles = uniqueArray(myIndexBnudles.concat(titleIndexBnudles.concat(moreBundles))).filter(function (bundleName) {
-            return !endsWith(bundleName, "/min") && !endsWith(bundleName, "/test");
+          myIndexBnudles = uniqueArray(myIndexBnudles.concat(titleIndexBnudlesNames.concat(moreBundles))).filter(function (bundleName) {
+            return !toIgnore(bundleName);
           });
 
         }
-
-        console.log("myIndexBnudles",myIndexBnudles);
+        console.log("Bundles in Order",myIndexBnudles);
 
         var prevBundle = null;
         myIndexBnudles.forEach(function (bundleName) {
