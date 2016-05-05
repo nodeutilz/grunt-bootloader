@@ -62,10 +62,28 @@ Default value: `'dist/resource.json'`
 path to resource file which will have all the static resources listed.
 
 #### options.resourcesInline
-Type: `String`
+Type: `Boolean`
 Default value: `false`
 
 if set to `true` resourceJson will be part of initial bundled file.
+
+#### options.sort
+Type: `Boolean`
+Default value: `false`
+
+if set to `true` modules will be sorted in alphabetically order.
+
+#### options.order
+Type: `Boolean`
+Default value: `false`
+
+if set to `true` single order-line will be followed.
+
+#### options.modulize
+Type: `Boolean`
+Default value: `false`
+
+if set to `true` one file per module.json is created.
 
 #### options.bootServer.port
 Type: `Number`
