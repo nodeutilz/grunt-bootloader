@@ -305,7 +305,11 @@ module.exports = function (grunt) {
       if (!TASK_SKIP_INIT) {
         var myIndexBnudles = indexBundles;
         if (TASK_BUNDLIFY) {
-          var moreBundles = Object.keys(bundles).sort();
+
+          var moreBundles = Object.keys(bundles);
+          if(options.sort){
+            moreBundles = moreBundles.sort();
+          }
 
           if(options.projectPrefix !== undefined){
             myIndexBnudles = uniqueArray(myIndexBnudles.concat(titleIndexBnudles.concat(moreBundles).filter(function(bundleName){
@@ -318,6 +322,8 @@ module.exports = function (grunt) {
           });
 
         }
+
+        console.log("myIndexBnudles",myIndexBnudles);
 
         var prevBundle = null;
         myIndexBnudles.forEach(function (bundleName) {
@@ -344,7 +350,7 @@ module.exports = function (grunt) {
             }
             prevBundle = bundleName;
 
-          } else console.log("No File in bundle to bundlify so skipping ", bundleName);
+          } else console.log("No File in bundle to bundlify thus skipping ", bundleName);
 
           var html_files = uniqueArray(files.html.reverse()).reverse();
           if(html_files.length){
