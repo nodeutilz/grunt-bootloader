@@ -211,7 +211,7 @@ module.exports = function (grunt) {
             var file = cleanURL(dir + "/" + bundle.js[i]);
             if (!traversed_files[file]) {
               files.js.push(file);
-              traversed_files[file] = true;
+              traversed_files[file] = packageName;
             }
           }
           if (files.js.length > 0) {
@@ -222,7 +222,7 @@ module.exports = function (grunt) {
             var file = cleanURL(dir + "/" + bundle.html[i]);
             if (!traversed_files[file]) {
               files.html.push(file);
-              traversed_files[file] = true;
+              traversed_files[file] = packageName;
             }
           }
           if (files.html.length > 0) {
@@ -304,12 +304,15 @@ module.exports = function (grunt) {
 
 
       var titleIndexBnudlesNames =  Object.keys(titleIndexBnudles);
-//      titleIndexBnudlesNames.map(function(bundName){
-//        if(!bundles[bundName] && !toIgnore(bundName)){
-//          bundles[bundName] =  { js: [], on: titleIndexBnudles[bundName], css: [], html : [], packageInfo : {}}
-//          console.log("New Package ",bundName,bundles[bundName]);
-//        }
-//      });
+
+      if(options.modulize){
+        titleIndexBnudlesNames.map(function(bundName){
+          if(!bundles[bundName] && !toIgnore(bundName)){
+            bundles[bundName] =  { js: [], on: titleIndexBnudles[bundName], css: [], html : [], packageInfo : {}}
+            console.log("New Package ",bundName,bundles[bundName]);
+          }
+        });
+      }
 
       for(var packageKey in excluded_bundles){
         delete bundles[packageKey];
@@ -357,7 +360,7 @@ module.exports = function (grunt) {
             //console.log("files",bundleName,files.length,files);
             setBundleConfig(bundleName, _bundleMap, includedBundles,bundledFile_js);
 
-            if (prevBundle) {
+            if (prevBundle && options.order) {
               var bundle = resourcesJs.bundles[bundleName];
               if (bundle) {
                 bundle.on = [prevBundle].concat(bundle.on)
