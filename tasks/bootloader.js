@@ -294,7 +294,7 @@ module.exports = function (grunt) {
                   }
                 }
                 bundles[bundleName].on = _bundles[bundleName].on || [];
-                console.log("==Module.json", abspath);
+                console.log("╬═╬ Module.json", abspath);
                 //console.log(bundleName, _bundles[bundleName].on);
               }
             }
@@ -368,7 +368,7 @@ module.exports = function (grunt) {
             }
             prevBundle = bundleName;
 
-          } else console.log("No File in bundle to bundlify thus skipping ", bundleName);
+          } else console.log("╬═╬ No File in bundle to bundlify thus skipping ", bundleName);
 
           var html_files = uniqueArray(files.html.reverse()).reverse();
           if(html_files.length){
@@ -418,7 +418,9 @@ module.exports = function (grunt) {
 
     if (TASK_BUNDLIFY || TASK_SCAN) {
       bundler(options)
+      console.log(grunt.file.read(__dirname+"/../build.md"));
     } else if (TASK_SERVER) {
+      console.log(grunt.file.read(__dirname+"/../server.md"));
      // global.__base = options.src;
       datahandler = require(__dirname + "/../utils/stubshandler");
       var _bootServerOptions = Object.create(bootServerOptions);
