@@ -33,8 +33,6 @@ var randomVal = function(type) {
 	  return helperJSON[type][dummyjson.randomInt(0,helperJSON[type].length-1)];
 };
 
-console.log("helperJSONhelperJSONhelperJSON",helperJSON)
-
 var helpers = {};
 Object.keys(helperJSON).map(function(key){
 	helpers[key] = function(options){
