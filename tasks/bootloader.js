@@ -76,7 +76,7 @@ module.exports = function(grunt) {
         );
     }
 
-    var TASK_BUNDLIFY, TASK_SCAN, TASK_SKIP_INIT, TASK_SERVER;
+    var TASK_BUNDLIFY, TASK_SCAN, TASK_SKIP_INIT, TASK_SERVER,TASK_CREATE;
     var datahandler, STUBS_URL = "./app", CONTROLLER_MATCH, INDEX_MATCH;
 
     function showIndex(url) {

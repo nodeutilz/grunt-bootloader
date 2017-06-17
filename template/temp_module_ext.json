@@ -1,0 +1,9 @@
+{
+  "name": "{{name}}/external",
+  "{{name}}/set1": {
+    "js": [],
+    "on": [
+      "external_dependcies_list"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "{{name}}",
+  "description": "",
+  "version": "0.1.0",
+  "homepage": "",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "webmodules-bootloader": ">=0.1.14",
+    "webmodules-jqrouter": ">=1.1.11",
+    "spamjs-view": "~0.1.3",
+    "spamjs-bootconfig": "~0.0.15"
+  },
+  "resolutions": {
+  },
+  "devDependencies": {
+  }
+}
