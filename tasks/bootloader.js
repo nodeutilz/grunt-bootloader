@@ -97,6 +97,7 @@ module.exports = function(grunt) {
 
     var serveStatic = require('serve-static');
     var serveIndex = require('serve-index');
+    var path = require('path');
 
     var bootServerOptions = {
         port: 8090,
@@ -113,8 +114,12 @@ module.exports = function(grunt) {
          * @return ArrayExpression
          */
         middleware: function(connect, options) {
-            //console.log("==================",options);
-            var base = (typeof options.base == "string") ? options.base : options.base[0];
+            var base = "./";//(typeof options.base == "string") ? options.base : options.base[0];
+            if (!Array.isArray(options.base)) {
+                options.base = [options.base];
+            }
+            var base = path.resolve(options.base[0]);
+            //return [serveStatic(base),serveIndex(base)];
             return [
                 // connect.compress({
                 //     level: 9
@@ -181,7 +186,7 @@ module.exports = function(grunt) {
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-connect');
+    //grunt.loadNpmTasks('grunt-contrib-connect');
 
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
@@ -435,8 +440,9 @@ module.exports = function(grunt) {
             mixin(_bootServerOptions, options.bootServer);
             CONTROLLER_MATCH = _bootServerOptions.noBypass;
             INDEX_MATCH = _bootServerOptions.indexMatch;
-            grunt.config("connect.bootServer.options", _bootServerOptions);
-            grunt.task.run("connect:bootServer");
+            grunt.config("connect.bootserver.options", _bootServerOptions);
+            grunt.task.run("connect:bootserver");
+
         } else if (arg1 === "swagger") {
             ([
                 "controller/SwaggerController.js",

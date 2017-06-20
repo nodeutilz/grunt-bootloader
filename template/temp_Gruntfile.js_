@@ -52,9 +52,15 @@ module.exports = function (grunt) {
                 resourcesInline: true,
                 livereloadUrl: "http://localhost:35729/livereload.js",
                 bootServer: {
-                    port: 8087,
+                    port: {{port}},
                     indexMatch: /^\/{{name}}\// //URLs to be used to render index.html
                 }
+            }
+        },
+        jsbeautifier: {
+            files: ["src/**/*.js", "!src/external/components/**/*.js"],
+            options: {
+                config: ".jsbeautifyrc"
             }
         },
         jshint: {
@@ -97,6 +103,7 @@ module.exports = function (grunt) {
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-jsbeautifier');
     //grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-cssmin');

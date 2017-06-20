@@ -1,0 +1,25 @@
+{
+    "undef": true,
+    "unused": "vars",
+    "eqnull": true,
+    "eqeqeq": true,
+    "maxstatements" :40,
+    "asi" : true,
+    "globals": {
+        "document": true,
+        "bootloader": true,
+        "jQuery": true,
+        "define": true,
+        "module": true,
+        "_importStyle_": true,
+        "_tag_": true,
+        "is": true,
+        "when": true,
+        "to": true,
+        "console": true,
+        "window": true,
+        "localStorage": true,
+        "_": true,
+        "require": true
+    }
+}

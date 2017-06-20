@@ -17,6 +17,15 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-bootloader');
 ```
 
+OR if you are starting a fresh project you can skip basic setup, and simply run this command
+
+```bash
+$ bootloader create --name=myapp --port=8080
+
+```
+This will setup most of the basic configuration for bootloader project.
+
+
 ## The "bootloader" task
 
 ### Overview
@@ -105,6 +114,19 @@ To make production build. Note :-  it must be run first time on machine before s
 
 ```js
   grunt.registerTask('build', ['bootloader:bundlify', 'sass:dist', 'cssmin']);
+```
+
+#### Some handy bootloader commands
+```bash
+$ bootloader scan //scan files => grunt cssmin bootloader:scan
+$ bootloader build // creates build files ready to use on production server =>  gitinfo cssmin bootloader:bundlify
+$ bootloader watch // starts watch server => grunt watch
+$ bootloader check --jsb --css // check and optinally fixes js files and css files => grunt jshint jsbeautifier cssmin
+```
+##### bootloader shortcut 
+```bash
+  $ bl scan 
+  $ bl build
 ```
 
 ## Contributing
