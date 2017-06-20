@@ -95,6 +95,9 @@ module.exports = function(grunt) {
         return true;
     }
 
+    var serveStatic = require('serve-static');
+    var serveIndex = require('serve-index');
+
     var bootServerOptions = {
         port: 8090,
         hostname: "*",
@@ -110,10 +113,12 @@ module.exports = function(grunt) {
          * @return ArrayExpression
          */
         middleware: function(connect, options) {
+            //console.log("==================",options);
+            var base = (typeof options.base == "string") ? options.base : options.base[0];
             return [
-                connect.compress({
-                    level: 9
-                }),
+                // connect.compress({
+                //     level: 9
+                // }),
                 //require('connect-livereload')(),
                 function(req, res, next) {
                     if (req.headers.origin === undefined) {
@@ -136,7 +141,7 @@ module.exports = function(grunt) {
                         next();
                     }
                 },
-                connect.static(options.base),
+                serveStatic(base),
                 function(req, res, next) {
                     if (showIndex(req.originalUrl)) {
                         var body = grunt.file.read("index.html");
@@ -169,7 +174,7 @@ module.exports = function(grunt) {
                         next();
                     }
                 },
-                connect.directory(options.base)
+                serveIndex(base)
             ];
         }
     };

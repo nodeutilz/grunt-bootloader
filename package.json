@@ -1,69 +1,70 @@
 {
-    "name": "grunt-bootloader",
-    "description": "Setup your webproject in an instant",
-    "version": "0.3.0",
-    "homepage": "",
-    "author": {
-        "name": "Lalit Tanwar",
-        "email": "lalit.tanwar07@gmail.com"
-    },
-    "contributors": [
-        {
-            "name": "Tushar Srivastav",
-            "email": "tushar.srivastav@unicommerce.com"
-        }
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/nodeutilz/grunt-bootloader.git"
-    },
-    "bugs": {
-        "url": "???"
-    },
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "/blob/master/LICENSE-MIT"
-        }
-    ],
-    "engines": {
-        "node": ">= 0.8.0"
-    },
-    "scripts": {
-        "test": "grunt test"
-    },
-    "devDependencies": {
-        "grunt": "~0.4.5"
-    },
-    "peerDependencies": {
-        "grunt-contrib-jshint": "^1.1.0",
-        "grunt-contrib-uglify": "^3.0.1",
-        "grunt-contrib-clean": "^1.1.0",
-        "grunt-contrib-compass": "^1.1.1",
-        "grunt-contrib-connect": "^1.0.2",
-        "grunt-contrib-cssmin": "^2.2.0",
-        "grunt-contrib-watch": "^1.0.0",
-        "grunt-contrib-nodeunit": "^1.0.0",
-        "grunt-gitinfo": "^0.1.8",
-        "grunt-sass": "^1.1.0"
-    },
-    "keywords": [
-        "gruntplugin"
-    ],
-    "dependencies": {
-        "body": "^5.1.0",
-        "cookies": "^0.5.1",
-        "extend-grunt-plugin": "^0.1.0",
-        "find": "^0.2.3",
-        "promise": "^7.0.4",
-        "qs": "^6.1.0",
-        "underscore": "^1.8.3",
-        "dummy-json": "0.0.2",
-
-        "shelljs": "^0.4.0",
-        "yargs": "^3.9.0"
-    },
-    "bin": {
-        "bootloader": "bin/commands.js"
+  "name": "grunt-bootloader",
+  "description": "Setup your webproject in an instant",
+  "version": "0.3.1",
+  "homepage": "",
+  "author": {
+    "name": "Lalit Tanwar",
+    "email": "lalit.tanwar07@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Tushar Srivastav",
+      "email": "tushar.srivastav@unicommerce.com"
     }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nodeutilz/grunt-bootloader.git"
+  },
+  "bugs": {
+    "url": "???"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "/blob/master/LICENSE-MIT"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5"
+  },
+  "peerDependencies": {
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^3.0.1",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-compass": "^1.1.1",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-cssmin": "^2.2.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-nodeunit": "^1.0.0",
+    "grunt-gitinfo": "^0.1.8",
+    "grunt-sass": "^2.0.0"
+  },
+  "keywords": [
+    "gruntplugin"
+  ],
+  "dependencies": {
+    "body": "^5.1.0",
+    "cookies": "^0.5.1",
+    "dummy-json": "0.0.2",
+    "extend-grunt-plugin": "^0.1.0",
+    "find": "^0.2.3",
+    "promise": "^7.0.4",
+    "qs": "^6.1.0",
+    "serve-index": "^1.9.0",
+    "serve-static": "^1.12.3",
+    "shelljs": "^0.4.0",
+    "underscore": "^1.8.3",
+    "yargs": "^3.9.0"
+  },
+  "bin": {
+    "bootloader": "bin/commands.js"
+  }
 }
