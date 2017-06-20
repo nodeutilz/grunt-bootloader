@@ -37,7 +37,7 @@ var argv = yargs.usage("$0 command")
         copyTempFile("temp_bower.json","bower.json");
         copyTempFile("temp_Gruntfile.js","Gruntfile.js");
         copyTempFile("temp_index.html","index.html");
-        copyTempFile("temp_main.scss","temp_main.scss");
+        copyTempFile("temp_main.scss","src/main.scss");
         copyTempFile("temp_public.scss","src/external/public.scss");
         copyTempFile("temp_module.json","src/module.json");
         copyTempFile("temp_module_ext.json","src/external/module.json");
