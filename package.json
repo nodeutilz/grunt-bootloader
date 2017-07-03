@@ -1,7 +1,7 @@
 {
   "name": "grunt-bootloader",
   "description": "Setup your webproject in an instant",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "homepage": "",
   "author": {
     "name": "Lalit Tanwar",

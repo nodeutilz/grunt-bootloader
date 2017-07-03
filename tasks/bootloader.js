@@ -402,13 +402,13 @@ module.exports = function(grunt) {
                         RESOURCES_FILE: resourcesFile
                     }).replace(/\r?\n|\r|\\n/g, ' ');
 
-                    var jsonpack = resJsonString;
+                    var packed = resJsonString;
                     var unpack = "";
                     if(options.jsonpack){
-                        jsonpack = require('jsonpack/main');
+                        var jsonpack = require('jsonpack/main');
                         var fs = require("fs");
-                        var unpack = grunt.file.read('node_modules/jsonpack/main.js');
-                        var packed =('(jsonpack.unpack(\''+jsonpack.pack(resJsonString)+'\'))');
+                        unpack = grunt.file.read('node_modules/jsonpack/main.js');
+                        packed =('(jsonpack.unpack(\''+jsonpack.pack(resJsonString)+'\'))');
                     }
 
                     grunt.file.write(resourcesFile + ".js", unpack+";var _BOOTLOADER_CONFIG_=" + packed);
