@@ -57,6 +57,7 @@
     "dummy-json": "0.0.2",
     "extend-grunt-plugin": "^0.1.0",
     "find": "^0.2.3",
+    "jsonpack": "^1.1.5",
     "promise": "^7.0.4",
     "qs": "^6.1.0",
     "serve-index": "^1.9.0",
