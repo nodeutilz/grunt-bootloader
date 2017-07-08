@@ -1,9 +1,23 @@
 {
   "name": "{{name}}/external",
-  "{{name}}/set1": {
+  "{{name}}/external": {
     "js": [],
     "on": [
       "external_dependcies_list"
+    ]
+  },
+  "{{name}}/external/boot": {
+    "js": [],
+    "on": [
+      "webmodules/bootloader",
+      "webmodules/jqrouter",
+      "webmodules/view"
+    ]
+  },
+  "{{name}}/external/service": {
+    "js": [],
+    "on": [
+      "jsutils/server"
     ]
   }
 }

@@ -2,8 +2,7 @@
   "name": "{{name}}",
   "{{name}}/style": {
     "css": [
-      "../dist/style/library.css",
-      "../dist/style/main.css"
+      "../dist/css/style.css"
     ]
   },
   "{{name}}/app": {
@@ -11,10 +10,13 @@
       "app.js"
     ],
     "on": [
-      "webmodules/bootloader",
-      "jsutils/server",
-      "spamjs/view",
-      "{{name}}/external"
+      "{{name}}/external/boot",
+      "{{name}}/external/service"
+    ]
+  },
+  "{{name}}/main": {
+    "js": [
+      "modules/main.js"
     ]
   }
 }

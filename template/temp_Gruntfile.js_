@@ -70,7 +70,7 @@ module.exports = function (grunt) {
                 reporterOutput: ""
             }
         },
-        sass: {
+       sass: {
             options: {
                 sourceMap: false,
                 outputStyle: 'nested',
@@ -85,16 +85,18 @@ module.exports = function (grunt) {
         },
         cssmin: {
             options: {
-                target: "{{name}}/dist/css",
+                target: "/",
                 advanced: true,
-                keepSpecialComments: 0
+                keepSpecialComments: 0,
+                rebase : true
             },
             target: {
                 files: {
-                    'dist/css/external.css': [
+                    'dist/css/style.css': [
                         //List of css files to be included in your project
-                        'src/external/components/webmodules-bootstrap/css/bootstrap.min.css',
-                        'src/external/components/font-awesome/css/font-awesome.min.css'
+                        'dist/css/external/public.css',
+                        'dist/css/style/main.css'
+
                     ]
                 }
             }
@@ -115,8 +117,9 @@ module.exports = function (grunt) {
 
     // task(s).
     grunt.registerTask('check', ["jshint"]);
-    grunt.registerTask('scan', ['bootloader:scan:skip','cssmin']);
-    grunt.registerTask('build', ['gitinfo','cssmin', 'bootloader:bundlify']);
+    grunt.registerTask('buildcss', ['sass','cssmin']);
+    grunt.registerTask('scan', ['bootloader:scan:skip','buildcss']);
+    grunt.registerTask('build', ['gitinfo','buildcss', 'bootloader:bundlify']);
     grunt.registerTask('boot', ['scan','bootloader:server', 'watch']);
     grunt.registerTask('default', ['check','scan']);
 

@@ -1,40 +1,31 @@
 define({
-    name: "app",
-    extend: "spamjs.view",
+    name: "{{name}}",
+    extend : "view",
     modules: ["jqrouter", "jQuery"]
-}).as(function (app, jqrouter, jQuery) {
+}).as(function (APP, jqrouter, jQuery) {
 
     return {
         router: jqrouter.map({
-            "/{{name}}/boot/*": "openDevSection",
-            "/{{name}}/boot/{mod}/*": "openDevSection",
+            "/{{name}}/conig/*": "view.config",
+            "/{{name}}/main/*": "main"
         }),
         events: {},
         _init_: function () {
             var self = this;
             jqrouter.start();
             _importStyle_("{{name}}/style");
-            if (document.location.pathname.startsWith("/{{name}}/boot")) {
-                this.openDevSection();
-            } else {
-                this.$$.loadTemplate(
-                    this.path("app.html")).done(function () {
-                    self.router();
-                    jQuery('body').removeClass("loadingPage");
-                });
-            }
-        },
-        openDevSection: function () {
-            var self = this;
-            module("spamjs.bootconfig", function (myModule) {
-                self.add(myModule.instance({
-                    id: "bootconfig",
-                    routerBase: "/olp/boot/"
-                }));
+            return this.$().loadTemplate(
+                this.path("app.html")).done(function () {
+                self.router();
+                jQuery('body').removeClass("loadingPage");
             });
         },
         _routerEvents_: function (e, target, data, params) {
+            var self = this;
             console.error("_routerEvents_", e, target, data, params);
+            module([target],function(TargetModule){
+                self.$("#MainModule").initView(TargetModule.instance(data));
+            });
         },
         _ready_: function () {
             var ERROR = window.console.error;
@@ -46,10 +37,7 @@ define({
                     return window.console.warn.apply(window.console, arguments);
                 };
             }
-            window.GLOBAL = {
-                olpApp: this.instance()
-            };
-            window.GLOBAL.olpApp.addTo(jQuery("body"));
+            jQuery("body").addView(this.instance());
         }
     };
 

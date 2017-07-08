@@ -50,10 +50,12 @@ var argv = yargs.usage("$0 command")
         copyTempFile("temp_bower.json","bower.json");
         copyTempFile("temp_Gruntfile.js_","Gruntfile.js");
         copyTempFile("temp_index.html","index.html");
-        copyTempFile("temp_main.scss","src/style/main.scss");
-        copyTempFile("temp_public.scss","src/external/public.scss");
+        copyTempFile("temp_main.scss_","src/style/main.scss");
+        copyTempFile("temp_public.scss_","src/external/public.scss");
         copyTempFile("temp_module.json","src/module.json");
         copyTempFile("temp_module_ext.json","src/external/module.json");
+        copyTempFile("temp_main.js","src/modules/main.js");
+        copyFile("temp_main.html","src/modules/main.html");
         copyTempFile("temp_app.js","src/app.js");
         copyFile("temp_app.html","src/app.html");
 
@@ -64,24 +66,27 @@ var argv = yargs.usage("$0 command")
 
     }).command("scan", "scan files", function (yargs) {
         if(fs.existsSync('dist/bootloader_bundled/webmodules.bootloader.js')){
-            shell.exec("grunt cssmin bootloader:scan:skip")
+            shell.exec("grunt sass cssmin bootloader:scan:skip")
         } else {
-            shell.exec("grunt cssmin bootloader:scan");
+            shell.exec("grunt sass cssmin bootloader:scan");
         }
 
+    }).command("css", "build css files for development", function (yargs) {
+        shell.exec("grunt sass cssmin");
+
     }).command("build", "build files for prod", function (yargs) {
-        shell.exec("grunt gitinfo cssmin bootloader:bundlify");
+        shell.exec("grunt gitinfo sass cssmin bootloader:bundlify");
 
     }).command("watch", "watch for changes", function (yargs) {
         shell.exec("grunt watch");
 
-    }).command("check", "check for jshint", function (yargs) {
+    }).command("check", "[--jsb|css] check for jshint", function (yargs) {
         var cmds = ["jshint"];
         if(yargs.argv.jsb){
             cmds.push("jsbeautifier");
         }
         if(yargs.argv.css){
-            cmds.push("cssmin");
+            cmds.push("sass cssmin");
         }
         shell.exec("grunt "+cmds.join(" "));
     })

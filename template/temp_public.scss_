@@ -1,0 +1,5 @@
+/** External Lib related scss  goes here */
+@import "components/bootswatch/cosmo/variables";
+$icon-font-path: "/src/external/components/bootstrap-sass/assets/fonts/bootstrap/";
+@import "components/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "components/bootswatch/cosmo/bootswatch";
