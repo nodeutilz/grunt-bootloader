@@ -57,7 +57,7 @@ var argv = yargs.usage("$0 command")
         copyTempFile("temp_main.js","src/modules/main.js");
         copyFile("temp_main.html","src/modules/main.html");
         copyTempFile("temp_app.js","src/app.js");
-        copyFile("temp_app.html","src/app.html");
+        copyTempFile("temp_app.html","src/app.html");
 
 
     }).command("server", "start server", function (yargs) {

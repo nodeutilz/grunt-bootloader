@@ -1,5 +1,5 @@
 define({
-    name: "{{name}}",
+    name: "app",
     extend : "view",
     modules: ["jqrouter", "jQuery"]
 }).as(function (APP, jqrouter, jQuery) {
@@ -7,7 +7,7 @@ define({
     return {
         router: jqrouter.map({
             "/{{name}}/conig/*": "view.config",
-            "/{{name}}/main/*": "main"
+            "/{{name}}/main": "main"
         }),
         events: {},
         _init_: function () {
@@ -22,7 +22,6 @@ define({
         },
         _routerEvents_: function (e, target, data, params) {
             var self = this;
-            console.error("_routerEvents_", e, target, data, params);
             module([target],function(TargetModule){
                 self.$("#MainModule").initView(TargetModule.instance(data));
             });
