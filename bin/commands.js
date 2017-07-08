@@ -38,13 +38,19 @@ var argv = yargs.usage("$0 command")
         if(!fs.existsSync('src/external')){
             fs.mkdirSync("src/external");
         }
+        if(!fs.existsSync('src/style')){
+            fs.mkdirSync("src/style");
+        }
+        if(!fs.existsSync('src/modules')){
+            fs.mkdirSync("src/modules");
+        }
         copyFile("temp_.bowerrc",".bowerrc");
         copyFile("temp_.jsbeautifyrc",".jsbeautifyrc");
         copyFile("temp_.jshintrc",".jshintrc");
         copyTempFile("temp_bower.json","bower.json");
         copyTempFile("temp_Gruntfile.js_","Gruntfile.js");
         copyTempFile("temp_index.html","index.html");
-        copyTempFile("temp_main.scss","src/main.scss");
+        copyTempFile("temp_main.scss","src/style/main.scss");
         copyTempFile("temp_public.scss","src/external/public.scss");
         copyTempFile("temp_module.json","src/module.json");
         copyTempFile("temp_module_ext.json","src/external/module.json");
