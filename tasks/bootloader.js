@@ -155,7 +155,7 @@ module.exports = function(grunt) {
                     } else {
                         res.setHeader('Access-Control-Allow-Headers', 'content-type');
                         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-                        res.setHeader('Content-Length', '0');
+                        //res.setHeader('Content-Length', '0');
                         res.setHeader('Content-Type', 'application/json; charset=utf-8');
                         datahandler(req, res, STUBS_URL, function() {
                             console.log("first end");
