@@ -164,11 +164,14 @@
                 MAPPER = MAPPERS[i];
             }
         }
-        var _POST_DATA_, _GET_DATA_;
+        var _POST_DATA_, _GET_DATA_, _BODY_DATA_;
         var _helpers = {
             PATH: function (i) {
                 return PATHTokens[i]
             }, POST: function (key) {
+                if(key===undefined){
+                    return _BODY_DATA_;
+                }
                 return _POST_DATA_ ? getValue(_POST_DATA_, key) : "";
             }, GET: function (key) {
                 if (!_GET_DATA_) {
@@ -198,6 +201,7 @@
                         body += data;
                     });
                     req.on('end', function () {
+                        _BODY_DATA_ = body;
                         _POST_DATA_ = qs.parse(body);
                         callback();
                     });
